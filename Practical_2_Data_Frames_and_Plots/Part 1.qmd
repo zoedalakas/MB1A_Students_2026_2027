@@ -1,0 +1,112 @@
+---
+title: "Practical_2_Data_Frames_and_Plots/prac2_exercises.qmd"
+---
+```{r}
+library(gt)
+library(tidyverse)
+library(maps)
+```
+
+#Read the first csv file
+```{r}
+bird_breeding_sites <- read_csv("data/breeding_site_locations.csv")
+gt(bird_breeding_sites)
+```
+#Examining the breeding site csv file
+```{r}
+colnames(bird_breeding_sites)
+glimpse(bird_breeding_sites)
+print(nrow(bird_breeding_sites))
+print(ncol(bird_breeding_sites))
+print(dim(bird_breeding_sites))
+```
+#Reading the second csv file
+```{r}
+bird_migration_sites <- read_csv ("data/migratory_connectivity_dataset.csv")
+gt(bird_migration_sites)
+gt(head(bird_migration_sites))
+glimpse(bird_migration_sites)
+print(nrow(bird_migration_sites))
+print(ncol(bird_migration_sites))
+colnames(bird_migration_sites)
+```
+#Understanding the pipe symbol
+```{r}
+my_numbers <- c(2, 4, 6, 8)
+sum(my_numbers)
+my_numbers |> sum()
+
+print(my_numbers |>
+  sum() |>
+  sqrt() |>
+  round())
+
+my_result <- my_numbers |>
+  sum() |>
+  sqrt() |>
+  round()
+print(my_result)
+
+ # exercise 1
+input_vec <- c(5, -10, 4, -3)
+ print(input_vec |>
+         mean() |>
+         abs() |>
+         round ())
+  
+
+```
+#Selecting bird breeding sites data
+```{r}
+bird_breeding_selected <- bird_breeding_sites |>
+  select(Site, Longitude, Latitude) |>
+  distinct() |>
+  rename(Breeding_Longitude = Longitude, Breeding_Latitude = Latitude)
+
+gt(bird_breeding_selected)
+```
+# Selecting bird migration sites
+```{r}
+bird_migration_selected <- bird_migration_sites |>
+  select(Site, winterLongitude, winterLatitude, pslon, pslat, iblon, iblat, awestlon, awestlat) |>
+  distinct() |>
+  rename(Winter_Longitude = winterLongitude, Winter_Latitude = winterLatitude, Stopover_Longitude = pslon, Stopover_Latitude = pslat, Iberian_Longitude = iblon, Iberian_Latitude = iblat, Westmost_longitude = awestlon, Westmost_Latitude = awestlat)
+gt(bird_migration_selected)
+```
+#Testing ==
+
+```{r}
+y <- 12
+y == 7
+y < 15
+y > 20
+y <= 12
+```
+# Filtering
+```{r}
+bird_breeding_dartmoor <- bird_breeding_selected |> filter(Site == "Dartmoor")
+
+gt(bird_breeding_dartmoor)
+
+bird_breeding_not_dartmoor <- bird_breeding_selected |> filter(Site != "Dartmoor")
+
+gt(bird_breeding_not_dartmoor)
+
+bird_breeding_long_10 <- bird_breeding_selected |> filter(Breeding_Longitude > 10)
+
+gt(bird_breeding_long_10)
+
+
+```
+#Excluding Spain
+```{r}
+bird_breeding_exc <- bird_breeding_selected |> 
+  filter(Site != "Spain")
+gt(bird_breeding_exc)
+bird_migration_exc <- bird_migration_selected |> 
+  filter(Site != "Spain")
+gt(head(bird_migration_exc))
+
+```
+
+
