@@ -108,5 +108,118 @@ bird_migration_exc <- bird_migration_selected |>
 gt(head(bird_migration_exc))
 
 ```
+####Part 2 Complex Data Frame ####
+```{r}
+bird_migration_grouped <- bird_migration_exc |> group_by(Site)
+glimpse(bird_migration_grouped)
 
+lat_df <- bird_migration_grouped |>
+  summarise(
+    Highest_Lat_Stopover = max(Stopover_Latitude, na.rm = TRUE),
+    Lowest_Lat_Stopover = min(Stopover_Latitude, na.rm = TRUE),
+    Mean_Lat_Stopover = mean(Stopover_Latitude, na.rm = TRUE),
+    Highest_Lat_Winter = max(Winter_Latitude, na.rm = TRUE),
+    Lowest_Lat_Winter = min(Winter_Latitude, na.rm = TRUE),
+    Mean_Lat_Winter = mean(Winter_Latitude, na.rm = TRUE)
+  )
+
+gt(lat_df)
+
+bird_migration_grouped <- bird_migration_exc |> group_by(Site)
+bird_migration_summary <- bird_migration_grouped |>
+  summarise(
+    Stopover_Latitude = median (Stopover_Latitude, na.rm = TRUE),
+    Stopover_Longitude = median (Stopover_Longitude, na.rm = TRUE),
+    Iberian_Latitude = median (Iberian_Latitude, na.rm = TRUE),
+    Iberian_Longitude = median (Iberian_Longitude, na.rm = TRUE),
+    Westmost_Latitude = median (Westmost_Latitude, na.rm = TRUE),
+    Westmost_longitude = median (Westmost_longitude, na.rm = TRUE),
+    Winter_Latitude = median (Winter_Latitude, na.rm = TRUE),
+    Winter_Longitude = median (Winter_Longitude, na.rm = TRUE)
+  )
+
+gt(bird_migration_summary)
+```
+#Joining data frames example
+```{r}
+df_dept <- read_csv("data/depts.csv")
+df_score <- read_csv("data/scores.csv")
+gt(df_dept)
+gt(df_score)
+full_join_example <- full_join(df_dept, df_score)
+gt(full_join_example)
+inner_join_example <- inner_join(df_dept, df_score)
+gt(inner_join_example)
+left_join_example <- left_join(df_dept, df_score)
+gt(left_join_example)
+right_join_example <- right_join(df_dept, df_score)
+gt(right_join_example)
+```
+#Full join for birds
+```{r}
+combined_bird_data <- full_join(bird_breeding_exc, bird_migration_summary)
+gt(combined_bird_data)
+combined_bird_piv <- combined_bird_data |>
+  pivot_longer(
+    cols = ends_with(c("_Longitude", "_Latitude")),
+    names_sep = "_",
+    names_to = c("Location_Type", ".value")
+  )
+
+gt(combined_bird_piv)
+spring_vals <- c("Breeding", "Stopover", "Winter")
+autumn_vals <- c("Breeding", "Iberian", "Westmost", "Winter")
+
+spring_data <- combined_bird_piv |>
+  filter(Location_Type %in% spring_vals)
+
+autumn_data <- combined_bird_piv |>
+  filter(Location_Type %in% autumn_vals)
+
+write_csv(spring_data, "output/birds_spring.csv")
+write_csv(autumn_data, "output/birds_autumn.csv")
+
+```
+```{r}
+# Part 3 Practical 2
+# View spring data
+gt(spring_data)
+# calculating axis limits
+# Max/min long
+min_lon <- spring_data |>
+  pull(Longitude) |>
+  min()
+print(min_lon)
+
+max_lon <- spring_data |>
+  pull(Longitude) |>
+  max()
+print(max_lon)
+  
+#Max/min lat
+min_lat <- spring_data |>
+  pull(Latitude) |>
+  min()
+print(min_lat)
+
+max_lat <- spring_data |>
+  pull(Latitude) |>
+  max()
+print(max_lat)
+
+# plotting on the map
+ggplot(spring_data, aes(
+  x = Longitude,
+  y = Latitude, colour = Site, shape = Location_Type)) +
+  geom_point(size = 3) +
+  annotation_borders(linewidth = 0.2) +
+  coord_quickmap(
+    xlim = c(min_lon - 2, max_lon + 2),
+    ylim = c (min_lat - 2, max_lat + 2)) +
+  geom_path(aes(group = Site)) +
+  ggtitle("Pied Flycatcher Spring Migration Routes") +
+  xlab("Longitude (°)") +
+  ylab("Latitude (°)") +
+  theme_minimal()
+```
 
