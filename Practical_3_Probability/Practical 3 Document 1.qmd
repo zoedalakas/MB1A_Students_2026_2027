@@ -1,0 +1,44 @@
+---
+title: "Practical 3 Document 1"
+---
+# loop exercise
+```{r}
+set.seed(42)
+for ( i in seq_len (20)) {
+  cube <- i^3
+  print(cube)
+}
+for (i in seq_len(5)) {
+  print(paste(sample(letters, 5, replace = TRUE), collapse = ""))
+}
+```
+```{r}
+library(tidyverse)
+library(gt)
+set.seed(42) 
+
+cubed_nums <- c()
+
+for (i in seq_len(20)) {
+  res <- i^3
+  cubed_nums <- c(cubed_nums, res)
+}
+print(cubed_nums)
+
+# building a 10 course breakfast
+breakfast <- c("eggs", "bacon", "sausages", "toast")
+nums <- seq_len(5)
+break_df <- tibble()
+for (i in seq_len(10)) {
+  item <- sample(breakfast, size = 1)
+  num <- sample(nums, size = 1)
+  row <- tibble(
+    item = item,
+    count = num
+  )
+  break_df <- bind_rows(break_df, row)
+}
+gt(break_df)
+```
+
+
