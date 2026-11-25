@@ -1,0 +1,107 @@
+---
+title: "squirrels"
+---
+```{r}
+#installing packages
+library(cowsay)
+library(tidyverse)
+library(gt)
+set.seed(42)
+```
+# Squirrel stealing seeds
+```{r}
+is_success <- sample(c("Steals", "Doesn't steal"),
+size = 150,
+replace = T,
+prob = c(0.3, 0.7))
+n_successes <- sum(is_success == "Steals")
+say(paste("I was successful", n_successes, "times!"), by = "squirrel")
+
+```
+```{r}
+combined_successes <- c()
+for (i in seq_len(1000)) {
+  is_success <- sample(c("SUCCESS", "FAILURE"),
+    size = 150,
+    replace = TRUE,
+    prob = c(0.3, 0.7)
+  )
+  n_successes <- sum(is_success == "SUCCESS")
+  combined_successes <- c(combined_successes, n_successes)
+}
+print(combined_successes)
+
+df_squirrels <- tibble("N_Successful_Heists" = combined_successes)
+gt(head(df_squirrels))
+```
+```{r}
+# Plotting
+ggplot(
+  df_squirrels,
+  aes(
+    x = N_Successful_Heists
+  )
+) +
+  geom_bar() +
+  ggtitle("Number of Successful Heists per Squirrel - Simulated") +
+  xlab("Number of successful heists") +
+  ylab("Number of squirrels") +
+  theme_minimal()
+
+```
+
+```{r}
+# Doing a binomial
+n <- 150
+k <- 48
+p <- 0.3
+
+prob_X_equals_k <- dbinom(k, n, p)
+print(prob_X_equals_k)
+
+n_successes <- pull(df_squirrels, N_Successful_Heists)
+n_48 <- sum(n_successes == 48)
+print(n_48)
+print(n_48 / 1000)
+count_squirrels <- rbinom(n = 1000, size = 150, prob = 0.3)
+print(count_squirrels)
+
+rb_df <- tibble(N_Successful_Heists = count_squirrels)
+
+ggplot(rb_df,
+       aes(x = N_Successful_Heists)) +
+  geom_bar() +
+  ggtitle("Number of Successful Heists per Squirrel - Simulated") +
+  xlab("Number of successful heists") +
+  ylab("Number of squirrels") +
+  theme_minimal()
+
+prob_up_to_48 <- pbinom(48, 150, 0.3)
+print(prob_up_to_48)
+print(sum(count_squirrels <= 48) / length(count_squirrels))
+```
+```{r}
+# flower problem
+prob_pollinated <- pbinom(200, 125, 0.6)
+print(prob_pollinated)
+
+# second attempt
+n_sims <- 1000
+n_flowers_per_sim <- 200
+
+#run binomial with the 1000 dtatsets with 200 flowers and there is a 60% chance of getting  pollinated flower
+flowers <- rbinom(
+  n = n_sims,
+  size = n_flowers_per_sim,
+  prob = 0.6
+)
+
+# how may times were there at least 125 flowers pollinated?
+times_successful <- sum(flowers >= 125)
+
+# what proportion of attempts was this?
+prop_successful <- times_successful/n_sims
+print(prop_successful)
+
+```
+

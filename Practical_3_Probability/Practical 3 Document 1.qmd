@@ -40,5 +40,43 @@ for (i in seq_len(10)) {
 }
 gt(break_df)
 ```
+```{r}
+# Practical 3 Part 2
+# practice exercise
+coin_toss <- sample(c("Heads", "Tails"), size = 1)
+print(coin_toss)
+for (i in seq_len(5)) {
+  coin_toss <- sample(c("Heads", "Tails"),
+    size = 1
+  )
+  print(coin_toss)
+}
+
+coin_tosses <- sample(c("Heads", "Tails"),
+  size = 5,
+  replace = TRUE
+)
+print(coin_tosses)
+
+n_successes <- sum(coin_tosses == "Heads")
+print(n_successes)
+
+coin_tosses <- sample(c("Heads", "Tails"),
+  size = 5,
+  replace = TRUE,
+  prob = c(0.7, 0.3)
+)
+print(coin_tosses)
+
+bm_vec <- c("Badger", "Mushroom", "Snake")
+bm_probs <- c(0.95, 0.04, 0.01)
+
+my_sample <- sample(bm_vec,
+  size = 100,
+  replace = TRUE,
+  prob = bm_probs
+)
+print(my_sample)
+```
 
 
