@@ -3,13 +3,14 @@ title: "drosphilia"
 ---
 ```{r}
 #Examining the data
-dcounts <- read_csv("data/drosophila_counts.csv")
-gt(dcounts)
 
 library(tidyverse)
 library(gt)
 set.seed(42)
+dcounts <- read_csv("data/drosophila_counts.csv")
+gt(dcounts)
 
+dcounts <- read_csv("data/drosophila_counts.csv")
 dros_summary <- dcounts |>
   summarise(
   total_nm = sum(Novel_Mutation_Count),
@@ -29,6 +30,32 @@ xlab('Novel mutation count') +
 
 ```
 ```{r}
+
+#Examining the data
+dcounts <- read_csv("data/drosophila_counts.csv")
+gt(dcounts)
+
+library(tidyverse)
+library(gt)
+set.seed(42)
+
+dcounts <- read_csv("data/drosophila_counts.csv")
+dros_summary <- dcounts |>
+  summarise(
+  total_nm = sum(Novel_Mutation_Count),
+  max_nm = max(Novel_Mutation_Count),
+  mean_nm = mean(Novel_Mutation_Count),
+  variance_nm = var(Novel_Mutation_Count)
+)
+gt(dros_summary)
+
+ggplot(dcounts, aes(x = Novel_Mutation_Count)) +
+  geom_bar() +
+  ggtitle('Number of Populations With Each Mutation Count Observed') +
+ylab('Number of populations') +
+xlab('Novel mutation count') +
+  theme_minimal()
+
 #simulation of the poisson dist with 17 populations
 sample_mean <- dros_summary |> pull(mean_nm)
 n_populations <- nrow(dcounts)
@@ -38,24 +65,21 @@ simulated_counts <- rpois(
   lambda = sample_mean
 )
 print(simulated_counts)
-
 print(mean(simulated_counts))
-
 print(var(simulated_counts))
 
 sample_mean <- dros_summary |>
   pull(mean_nm)
-
 sample_variance <- dros_summary |>
   pull(variance_nm)
-
 sample_diff <- abs(sample_mean - sample_variance)
 
 #Simulate poisson data
 mean_sim <- c()
 var_sim <- c()
+
 for (i in seq_len(1000)) {
-  stimulated_counts <- rpois(
+  simulated_counts <- rpois(
     n = n_populations,
     lambda = sample_mean
   )
@@ -65,21 +89,74 @@ for (i in seq_len(1000)) {
   mean_sim <- c(mean_sim, current_mean)
   var_sim <- c(var_sim, current_var)
 }
-
 df_sim <- tibble(
   mean = mean_sim,
   var = var_sim,
   diff = abs(mean_sim - var_sim)
 )
 
-#plotting the simulations
-ggplot(df_sim, aes (x = diff)) +
-  geom_histogram (bins = 50) +
-  ggtitle("Plot between mean and variance across samples; simulated") +
-  xlab('Difference between mean and variance') +
-  ylab("Number of simultions") +
+
+# plotting the simulations
+ggplot(df_sim, aes(x = diff)) +
+  geom_histogram(bins = 50) +
+  ggtitle("Difference between mean and variance across samples - Simulated") +
+  xlab("Difference between mean and variance") +
+  ylab("Number of simulations") +
   theme_minimal()
 
+# adding in a line
+ggplot(df_sim, aes(x = diff)) +
+  geom_histogram(bins = 50) +
+  geom_vline(xintercept = sample_diff, color = "red") +
+  ggtitle("Difference between Mean and Variance across Samples -\nSimulated and Observed") +
+  xlab("Difference between mean and variance") +
+  ylab("Number of simulations") +
+  theme_minimal()
+```
+```{r}
+#Fish data
+library(tidyverse)
+library(gt)
+library(janitor)
+set.seed(42)
 
+fish_data <- read_csv("data/fish.csv") |> clean_names()
+geo <- fish_data |> filter(genus == "Geotria")
+ggplot(geo, aes(x = total_length_cm)) +
+  geom_histogram() +
+  ggtitle("Distribution of total length in Geotria fish - Observed") +
+  xlab("Total length (cm)") +
+  ylab("Number of fish") +
+  theme_minimal()
+
+#probability to density
+ggplot(geo, aes(
+  x = total_length_cm
+)) +
+  geom_histogram(aes(y = after_stat(density)),
+    bins = 30
+  ) +
+  ggtitle("Distribution of the total length in Geotria fish  - Observed") +
+  xlab("Total length (cm)") +
+  ylab("Density") +
+  theme_minimal()
+
+# standard deviation and mean
+mean_obs <- mean(pull(geo, total_length_cm))
+sd_obs <- sd(pull(geo, total_length_cm))
+ggplot(geo, aes(
+  x = total_length_cm
+)) +
+  geom_histogram(aes(y = after_stat(density)),
+    bins = 50
+  ) +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = mean_obs, sd = sd_obs)
+  ) +
+  ggtitle("Distribution of the total length in Geotria fish  -\nObserved and Theoretical") +
+  xlab("Total length (cm)") +
+  ylab("Density") +
+  theme_minimal()
 ```
 
